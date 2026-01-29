@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐾 Clínica Veterinaria Royal Pets</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+</head>
+<body>
+    <header>
+        <h1><i class="fas fa-paw"></i> Clínica Veterinaria Royal Pets</h1>
+        <p>Sistema de gestión de pacientes veterinarios</p>
+    </header>
+
+    <div class="estado-sistema">
+        <span></span>
+        Sistema activo - Listo para registrar pacientes
+    </div>
+
+    <!-- Lección 1: Introducción -->
+    <section class="section" id="leccion1">
+        <h2><i class="fas fa-user-md mascota-icon"></i> 1. Registro del Dueño</h2>
+        <p>Bienvenido al sistema. Por favor, ingresa tus datos para comenzar.</p>
+        
+        <div class="form-group">
+            <label for="nombreDueño"><i class="fas fa-user"></i> Nombre del dueño:</label>
+            <input type="text" id="nombreDueño" placeholder="Ej: Carlos Rodríguez">
+            
+            <label for="telefonoDueño"><i class="fas fa-phone"></i> Teléfono de contacto:</label>
+            <input type="tel" id="telefonoDueño" placeholder="Ej: +56 9 1234 5678">
+            
+            <label for="emailDueño"><i class="fas fa-envelope"></i> Email:</label>
+            <input type="email" id="emailDueño" placeholder="ejemplo@correo.cl">
+        </div>
+        
+        <button onclick="registrarDueño()">
+            <i class="fas fa-user-plus"></i> Registrar Dueño
+        </button>
+        
+        <div id="mensajeBienvenida" class="ficha" style="display:none;"></div>
+    </section>
+
+    <!-- Lección 2: Variables y operaciones -->
+    <section class="section" id="leccion2">
+        <h2><i class="fas fa-dog mascota-icon"></i> 2. Registro de la Mascota</h2>
+        
+        <div class="form-group">
+            <label for="nombreMascota"><i class="fas fa-tag"></i> Nombre de la mascota:</label>
+            <input type="text" id="nombreMascota" placeholder="Ej: Max">
+            
+            <label for="tipoMascota"><i class="fas fa-paw"></i> Tipo de mascota:</label>
+            <select id="tipoMascota">
+                <option value="">Selecciona el tipo...</option>
+                <option value="Perro">🐶 Perro</option>
+                <option value="Gato">🐱 Gato</option>
+                <option value="Conejo">🐰 Conejo</option>
+                <option value="Hámster">🐹 Hámster</option>
+                <option value="Ave">🐦 Ave</option>
+            </select>
+            
+            <div class="form-row">
+                <div style="flex: 1; margin-right: 15px;">
+                    <label for="edadMascota"><i class="fas fa-birthday-cake"></i> Edad (años):</label>
+                    <input type="number" id="edadMascota" min="0" max="30" placeholder="3">
+                </div>
+                <div style="flex: 1;">
+                    <label for="pesoMascota"><i class="fas fa-weight"></i> Peso (kg):</label>
+                    <input type="number" id="pesoMascota" min="0.1" max="100" step="0.1" placeholder="15.5">
+                </div>
+            </div>
+            
+            <label for="razaMascota"><i class="fas fa-dna"></i> Raza (opcional):</label>
+            <input type="text" id="razaMascota" placeholder="Ej: Labrador, Siames, etc.">
+        </div>
+        
+        <button onclick="registrarMascota()">
+            <i class="fas fa-save"></i> Registrar Mascota
+        </button>
+        
+        <div id="resultadoMascota" class="ficha" style="display:none;"></div>
+    </section>
+
+    <!-- Lección 3: Arreglos y bucles -->
+    <section class="section" id="leccion3">
+        <h2><i class="fas fa-history mascota-icon"></i> 3. Historial Médico</h2>
+        
+        <div class="form-group">
+            <label for="nuevaVisita"><i class="fas fa-calendar-check"></i> Descripción de la visita:</label>
+            <input type="text" id="nuevaVisita" placeholder="Ej: Vacunación anual, chequeo general, etc.">
+            
+            <label for="fechaVisita"><i class="fas fa-calendar-alt"></i> Fecha de la visita:</label>
+            <input type="date" id="fechaVisita">
+        </div>
+        
+        <div class="btn-group">
+            <button onclick="agregarVisita()" class="btn-primary">
+                <i class="fas fa-plus"></i> Agregar Visita
+            </button>
+            <button onclick="limpiarHistorial()" class="btn-secondary">
+                <i class="fas fa-trash"></i> Limpiar Historial
+            </button>
+        </div>
+        
+        <div id="listaVisitas">
+            <h3><i class="fas fa-clipboard-list"></i> Visitas registradas:</h3>
+            <ul id="listaVisitasUl"></ul>
+            
+            <div id="resumenVisitas" class="ficha" style="display:none;">
+                <p><strong>Total visitas:</strong> <span id="totalVisitas">0</span></p>
+                <p><strong>Última visita:</strong> <span id="ultimaVisita">No registrada</span></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lección 4: Funciones -->
+    <section class="section" id="leccion4">
+        <h2><i class="fas fa-calculator mascota-icon"></i> 4. Cálculos Veterinarios</h2>
+        <p>Herramientas para cálculos médicos veterinarios.</p>
+        
+        <div class="btn-group">
+            <button onclick="calcularDosis()">
+                <i class="fas fa-pills"></i> Calcular Dosis
+            </button>
+            <button onclick="calcularIMC()">
+                <i class="fas fa-weight-scale"></i> Calcular IMC
+            </button>
+            <button onclick="calcularEdadHumana()">
+                <i class="fas fa-user-clock"></i> Edad Humana
+            </button>
+        </div>
+        
+        <div id="resultadosCalculos" class="ficha" style="display:none;"></div>
+    </section>
+
+    <!-- Lección 5: Objetos -->
+    <section class="section" id="leccion5">
+        <h2><i class="fas fa-file-medical mascota-icon"></i> 5. Ficha Médica Completa</h2>
+        <p>Genera el reporte completo del paciente con todos los datos registrados.</p>
+        
+        <button onclick="mostrarFichaCompleta()" style="background: linear-gradient(135deg, var(--rojo-canin), #FF6B6B);">
+            <i class="fas fa-file-pdf"></i> Generar Ficha Completa
+        </button>
+        
+        <div id="fichaCompleta" class="ficha" style="display:none;"></div>
+    </section>
+
+    <!-- Consola del sistema -->
+    <section class="section" id="consolaSection">
+        <h2><i class="fas fa-terminal mascota-icon"></i> Consola del Sistema</h2>
+        <p>Registro de actividades y operaciones realizadas:</p>
+        
+        <div class="consola" id="consola">
+            <div>> Sistema veterinario iniciado correctamente</div>
+            <div>> Fuente Poppins cargada</div>
+            <div>> Esperando registros de pacientes...</div>
+        </div>
+        
+        <div class="btn-group" style="margin-top: 15px;">
+            <button onclick="limpiarConsola()" style="background-color: var(--gris-medio);">
+                <i class="fas fa-broom"></i> Limpiar Consola
+            </button>
+            <button onclick="exportarDatos()" style="background-color: var(--verde-exito);">
+                <i class="fas fa-download"></i> Exportar Datos
+            </button>
+        </div>
+    </section>
+
+    <footer style="text-align: center; margin-top: 40px; padding: 20px; color: var(--gris-medio);">
+        <p>Clínica Veterinaria Royal Pets © 2024 - Sistema desarrollado con JavaScript</p>
+        <p style="font-size: 0.9rem; margin-top: 5px;">
+            <i class="fas fa-heart" style="color: var(--rojo-canin);"></i>
+            Cuidando a tus mascotas con tecnología
+        </p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
