@@ -1,0 +1,65 @@
+rules_version = '2';
+
+// ============================================================================
+// REGLAS DE SEGURIDAD DE FIRESTORE
+// Estrategia "sin Cloud Functions" (Plan Spark):
+//   - Nadie puede listar/leer la colección completa de eventos.
+//   - Solo se puede leer UN evento si se conoce su doc id exacto (el código).
+//   - Las fotos solo se pueden leer/escribir bajo un evento YA EXISTENTE,
+//     verificándolo con get() del lado del servidor.
+// ============================================================================
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---- Colección de eventos (creada por el administrador desde la consola
+    //      o desde la app en modo admin mientras el evento no exista) ----
+    match /events/{eventCode} {
+      allow read: if true; // Se requiere conocer el ID exacto => no hay enumeración
+
+      // Creación del evento: permitida a cualquier visitante que ingrese el
+      // "PIN de creación" definido en el documento. Cambia este PIN por uno
+      // propio y guárdalo en privado.
+      allow create: if request.resource.data.valido == true
+                    && request.resource.data.pin == 'ADMIN-2024-CAMBIAME'
+                    && request.resource.data.keys().hasAll(['title', 'event_code'])
+                    && request.resource.data.event_code == eventCode;
+
+      // Actualización limitada (por ejemplo, marcar evento como cerrado).
+      allow update: if request.resource.data.diff(resource.data)
+                      .affectedKeys()
+                      .hasOnly(['active', 'updatedAt']);
+
+      allow delete: if false; // Solo desde la consola de Firebase
+
+      // ---- Subcolección de fotos del evento ----
+      match /photos/{photoId} {
+        // El padre (evento) DEBE existir: esto valida el event_code real.
+        function eventoExiste() {
+          return exists(/databases/$(database)/documents/events/$(eventCode));
+        }
+
+        // Cualquier persona con el enlace/QR puede ver los thumbnails.
+        allow read: if eventoExiste();
+
+        // Escritura: solo si el evento existe, está activo y el documento
+        // apunta al mismo evento y tiene URLs válidas de Storage del proyecto.
+        allow create: if eventoExiste()
+                      && get(/databases/$(database)/documents/events/$(eventCode)).data.active == true
+                      && request.resource.data.event_code == eventCode
+                      && request.resource.data.keys().hasAll(['thumbUrl', 'fullUrl', 'uploadedAt'])
+                      && request.resource.data.thumbUrl matches
+                         '^https://firebasestorage\\.googleapis\\.com/v0/b/[a-zA-Z0-9.\\-]+/o/events/' + eventCode + '/.*'
+                      && request.resource.data.fullUrl matches
+                         '^https://firebasestorage\\.googleapis\\.com/v0/b/[a-zA-Z0-9.\\-]+/o/events/' + eventCode + '/.*';
+
+        // Los invitados no pueden editar ni borrar fotos ya subidas.
+        allow update, delete: if false;
+      }
+    }
+
+    // Denegar todo lo demás por defecto.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

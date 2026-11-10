@@ -1,0 +1,39 @@
+rules_version = '2';
+
+// ============================================================================
+// REGLAS DE SEGURIDAD DE FIREBASE STORAGE
+// Estructura de rutas obligatoria: events/{event_code}/thumbs/{id}.jpg
+//                                           events/{event_code}/full/{id}.jpg
+// La subida solo se permite si el evento existe en Firestore (validación
+// cruzada con firestore.get()) y el archivo es una imagen dentro de los
+// límites de tamaño acordados con la compresión del cliente.
+// ============================================================================
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    match /events/{eventCode}/{folder}/{fileName} {
+
+      // Lectura pública de las imágenes (los invitados acceden vía URL del doc).
+      allow read: if true;
+
+      // Escritura: solo carpetas 'thumbs' y 'full', imágenes reales,
+      // tamaño limitado (500KB thumbs / 2.5MB full) y evento existente+activo.
+      allow write: if (folder == 'thumbs' || folder == 'full')
+                   && request.resource.contentType.matches('image/.*')
+                   && (
+                        (folder == 'thumbs' && request.resource.size < 500 * 1024)
+                        ||
+                        (folder == 'full'  && request.resource.size < 2.5 * 1024 * 1024)
+                      )
+                   && firestore.get(/databases/(default)/documents/events/$(eventCode)).data.active == true;
+
+      // Prohibido borrar/reemplazar desde el cliente (regenerar = nueva ruta).
+      allow delete: if false;
+    }
+
+    // Todo lo demás queda cerrado.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

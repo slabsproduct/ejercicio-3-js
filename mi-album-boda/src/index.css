@@ -1,0 +1,23 @@
+/* src/index.css
+   Directivas de Tailwind CSS + ajustes globales mobile-first */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Tipografía base y comportamiento táctil en móviles */
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent; /* quita el flash gris al tocar */
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply antialiased text-boda-900 bg-boda-50;
+    overscroll-behavior-y: none; /* evita el "rebote" al navegar la galería */
+  }
+
+  /* Los inputs de archivo ocultos nunca deben ocupar espacio */
+  input[type='file'][hidden] {
+    display: none !important;
+  }
+}
